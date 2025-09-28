@@ -2,23 +2,40 @@ package com.example.tickerwatchlistmanager;
 
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity
+        implements TickerListFragment.OnTickerSelectedListener {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        boolean hasTwoPaneContainers =
+                findViewById(R.id.ticker_list_container) != null &&
+                        findViewById(R.id.info_web_container) != null;
+
+        if (hasTwoPaneContainers && savedInstanceState == null) {
+            FragmentManager fm = getSupportFragmentManager();
+            FragmentTransaction tx = fm.beginTransaction();
+            tx.replace(R.id.ticker_list_container, new TickerListFragment(), "list");
+            tx.replace(R.id.info_web_container, new InfoWebFragment(), "web");
+            tx.commit();
+        }
+    }
+
+    @Override
+    public void onTickerSelected(String symbol) {
+        InfoWebFragment web = (InfoWebFragment)
+                getSupportFragmentManager().findFragmentByTag("web");
+        if (web != null) {
+            web.loadTicker(symbol);
+        }
     }
 }
