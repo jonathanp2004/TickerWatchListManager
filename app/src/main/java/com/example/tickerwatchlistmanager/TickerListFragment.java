@@ -12,16 +12,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
 
 public class TickerListFragment extends Fragment {
+    private OnTickerSelectedListener listener;
+    private ArrayList<String>data;
+    private ArrayAdapter<String>adapter;
+    private ListView listView;
+
+
     public interface OnTickerSelectedListener
     {
         void onTickerSelected(String symbol);
     }
 
-    private OnTickerSelectedListener listener;
+
 
     @Override
     public void onAttach(@NonNull Context context)
@@ -32,6 +39,21 @@ public class TickerListFragment extends Fragment {
             listener = (OnTickerSelectedListener) context;
         }
     }
+
+    public void addTicker(String ticker)
+    {
+        if(data==null || adapter==null) return;
+        if(data.size()<6)
+        {
+        data.add(ticker);
+        }
+        else {
+            data.set(5, ticker);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+
 
     @Nullable
     @Override
@@ -47,22 +69,26 @@ public class TickerListFragment extends Fragment {
     {
         super.onViewCreated(view, savedInstanceState);
 
-        ListView list = view.findViewById(R.id.list_tickers);
+        listView = view.findViewById(R.id.list_tickers);
 
-        List<String> tickers = Arrays.asList("NEE", "AAPL", "DIS");
+        data = new ArrayList<>(Arrays.asList("NEE","AAPL", "DIS"));
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                adapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_list_item_1,
-                tickers
+                data
         );
-        list.setAdapter(adapter);
+        listView.setAdapter(adapter);
 
-        list.setOnItemClickListener((parent, v, position, id) ->
+        listView.setOnItemClickListener((parent, v, position, id) ->
         {
             if (listener != null) {
-                listener.onTickerSelected(tickers.get(position));
+                listener.onTickerSelected(data.get(position));
             }
         });
+
+    }
+
+    public static class InfoWebFragment {
     }
 }

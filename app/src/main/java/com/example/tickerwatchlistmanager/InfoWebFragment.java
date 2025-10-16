@@ -15,8 +15,8 @@ import androidx.fragment.app.Fragment;
 import java.util.Locale;
 public class InfoWebFragment extends Fragment
 {
-
-
+    @Nullable
+    private String pendingticker;
     private WebView webView;
 
     @Nullable
@@ -41,21 +41,30 @@ public class InfoWebFragment extends Fragment
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
 
 
-        if (savedInstanceState == null)
+        if (pendingticker != null)
         {
-            webView.loadUrl("https://seekingalpha.com");
+            loadTicker(pendingticker);
+            pendingticker = null;
         }
 
     }
 
     public void loadTicker(@NonNull String symbol)
     {
-        if (webView == null) return;
         String upper = symbol.toUpperCase(Locale.US);
         String url = "https://seekingalpha.com/symbol/" + upper;
-        webView.loadUrl(url);
+
+        if(webView != null)
+        {
+            webView.loadUrl(url);
+        }
+        else
+        {
+            pendingticker = upper;
+        }
     }
 
 
